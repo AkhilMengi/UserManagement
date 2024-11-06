@@ -18,7 +18,7 @@ mongoose.connect("mongodb://localhost:27017/userManagement", {})
 
 //Register
 
-app.post('/register', async (req,res) => {
+app.post('/register', async (req, res) => {
 
     try {
         const { firstName, lastName, email, phoneNumber, password } = req.body;
@@ -43,6 +43,24 @@ app.post('/register', async (req,res) => {
         res.status(500).json({ message: 'Server error', error });
     }
 
+})
+
+app.post('/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const user = await Register.findOne({ email: email })
+        if (!user) {
+            res.status(404).json({ message: "No user Found" })
+        }
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            res.status(400).json({ message: "Invalid password" })
+        }
+        res.status(200).json({ message: "User login successfully" })
+    } catch (error) {
+        console.error('Registration error:', error); // Log the error to the console
+        res.status(500).json({ message: 'Server error', error });
+    }
 })
 
 app.get('/', (req, res) => {
